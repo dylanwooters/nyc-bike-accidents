@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+	<title> NYC Bike Accidents</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #googlemap { height: 100% }
+    </style>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATQ7rs5zSYWRccfV7pC0NmjhONVHqca2U&sensor=false">
+    </script>
+    <script type="text/javascript">
+    var activeInfoWindow;
+    function initialize() {
+      var myLatlng = new google.maps.LatLng(40.715,-73.941);
+      var mapOptions = {
+      	zoom: 13,
+      	center: myLatlng,
+      	mapTypeId: google.maps.MapTypeId.ROADMAP
+      }
+      var map = new google.maps.Map(document.getElementById('googlemap'), mapOptions);
+
+      var bikeLayer = new google.maps.BicyclingLayer();
+      bikeLayer.setMap(map);
+
+      var query = "date > '2015-08-15T00:00:00' AND (number_of_cyclist_injured > 0 OR number_of_cyclist_killed > 0)";
+      var url = "https://data.cityofnewyork.us/resource/h9gi-nx95.json?$where=" + encodeURIComponent(query).replace(/'/g, "%27");
+
+      $.get( url, function( data ) {
+        $.each( data, function(i, value) {
+                if (value != null && value.location != null && value.location != undefined) {
+                  var myLatlng = new google.maps.LatLng(value.location.latitude, value.location.longitude);
+                  var marker = new google.maps.Marker({
+                    position: myLatlng,
+                    map: map
+                    //title: value.contributing_factor_vehicle_1
+                  });
+                  var contentString = 'Number of Cyclists Injured: ' + value.number_of_cyclist_injured + 
+                                      '<br>Number of Cyclists Killed: ' + value.number_of_cyclist_killed +
+                                      '<br>Contributing Factor: ' + value.contributing_factor_vehicle_1;
+                  var infowindow = new google.maps.InfoWindow({
+                    content: contentString
+                  });
+                  marker.addListener('click', function() {
+                    if (activeInfoWindow != null)
+                      activeInfoWindow.close();
+                    activeInfoWindow = infowindow;
+                    infowindow.open(map, marker);
+                  }); 
+                }
+            });
+      }, "json");
+    }
+		
+    google.maps.event.addDomListener(window, 'load', initialize);
+	  
+    </script>
+  </head>
+  <body>
+    <div id="googlemap"/>
+  </body>
+</html>
