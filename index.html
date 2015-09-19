@@ -6,13 +6,28 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
-      #googlemap { height: 100% }
+      #googlemap { height: 87% }
+      .control {margin-left: 20px;float: left;}
     </style>
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATQ7rs5zSYWRccfV7pC0NmjhONVHqca2U&sensor=false">
     </script>
     <script type="text/javascript">
+    $(function() {
+      $( ".datepicker" ).datepicker();
+    });
+
+    var date = new Date();
+    var firstDayMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
+    $( document ).ready(function() {
+      $("#startDt").datepicker( "setDate" , firstDayMonth );
+      $("#endDt").datepicker( "setDate" , date );
+    });
+
     var activeInfoWindow;
     function initialize() {
       var myLatlng = new google.maps.LatLng(40.715,-73.941);
@@ -26,7 +41,7 @@
       var bikeLayer = new google.maps.BicyclingLayer();
       bikeLayer.setMap(map);
 
-      var query = "date > '2015-08-15T00:00:00' AND (number_of_cyclist_injured > 0 OR number_of_cyclist_killed > 0)";
+      var query = "date > '2015-09-01T00:00:00' AND (number_of_cyclist_injured > 0 OR number_of_cyclist_killed > 0)";
       var url = "https://data.cityofnewyork.us/resource/h9gi-nx95.json?$where=" + encodeURIComponent(query).replace(/'/g, "%27");
 
       $.get( url, function( data ) {
@@ -60,6 +75,11 @@
     </script>
   </head>
   <body>
+    <p class="control">Start Date <input type="text" id="startDt" class="datepicker"></p>
+    <p class="control">End Date <input type="text" id="endDt" class="datepicker"></p>
+    <p class="control">Cyclist Injured <input type="checkbox" id="injured" checked></p>
+    <p class="control">Cyclist Killed <input type="checkbox" id="killed"></p>
+    <div style="clear:both"></div>
     <div id="googlemap"/>
   </body>
 </html>
